@@ -17,8 +17,9 @@ import random
 
 
 class Dataset(data.Dataset):
-	def __init__(self, img_list, transform, random_noise, mode):
+	def __init__(self, img_list, label_list, transform, random_noise, mode):
 		self.img_list = img_list
+		self.label_list = label_list
 		self.transform = transform
 		self.random_noise = random_noise
 		self.mode = mode
@@ -32,7 +33,7 @@ class Dataset(data.Dataset):
 		if(self.mode == "test"):
 			label = 0
 		else:
-			label = int(img_path.split("/")[-1].split("_")[0])
+			label = self.label_list[idx]
 			if(self.mode == "train" and random.random() > 0.5):
 				transformed_img = self.random_noise(transformed_img)
 
@@ -43,13 +44,16 @@ class Dataset(data.Dataset):
 
 
 train_path = "./p1_data/train_50"
-# test_path = ""
 model_path = "model.pt"
 record_path = "record.txt"
 
-train_list = glob.glob(os.path.join(train_path, "*.png"))
-train_list, valid_list = train_test_split(train_list, train_size = 0.8, random_state = 2022)
-train_list, valid_list = np.array(train_list), np.array(valid_list)
+
+# let data distribution is even 
+train_img_list = glob.glob(os.path.join(train_path, "*.png"))
+train_label_list = [int(img.split("/")[-1].split("_")[0]) for img in train_img_list]
+train_img_list, valid_img_list, train_label_list, valid_label_list = train_test_split(train_img_list, train_label_list, train_size = 0.8, random_state = 2022, stratify = train_label_list)
+
+
 
 # train_transform = transforms.Compose([
 # 	transforms.Resize((32, 32)),
@@ -78,12 +82,12 @@ valid_transform = transforms.Compose([
 random_noise = transforms.GaussianBlur(kernel_size = (3, 3), sigma = (5, 5))
 
 
-train_imgs = Dataset(train_list, transform = train_transform, random_noise = random_noise, mode = "train")
-valid_imgs = Dataset(valid_list, transform = valid_transform, random_noise = None, mode = "valid")
+train_set = Dataset(img_list = train_img_list, label_list = train_label_list, transform = train_transform, random_noise = random_noise, mode = "train")
+valid_set = Dataset(img_list = valid_img_list, label_list = valid_label_list, transform = valid_transform, random_noise = None, mode = "valid")
 
 
-train_loader = DataLoader(dataset = train_imgs, batch_size = 18, shuffle = True, num_workers = 0, pin_memory = True)
-valid_loader = DataLoader(dataset = valid_imgs, batch_size = 18, shuffle = True, num_workers = 0, pin_memory = True)
+train_loader = DataLoader(dataset = train_set, batch_size = 18, shuffle = True, num_workers = 0, pin_memory = True)
+valid_loader = DataLoader(dataset = valid_set, batch_size = 18, shuffle = True, num_workers = 0, pin_memory = True)
 
 
 
