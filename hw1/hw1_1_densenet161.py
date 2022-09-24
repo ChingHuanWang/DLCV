@@ -78,14 +78,14 @@ train_img_list, valid_img_list, train_label_list, valid_label_list = train_test_
 # ])
 
 train_transform = transforms.Compose([
-	transforms.Resize((32, 32)),
+	transforms.Resize((224, 224)),
 	transforms.ToTensor(),
 	transforms.Normalize((0.5077, 0.4813, 0.4312), (0.2000, 0.1986, 0.2034)),
 ])
 
 
 valid_transform = transforms.Compose([
-	transforms.Resize((32, 32)),
+	transforms.Resize((224, 224)),
 	transforms.ToTensor(),
 	transforms.Normalize((0.5077, 0.4813, 0.4312), (0.2000, 0.1986, 0.2034))
 ])

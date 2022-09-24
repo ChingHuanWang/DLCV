@@ -1,3 +1,5 @@
+
+
 import os
 import torch
 import torch.nn as nn
@@ -77,6 +79,7 @@ train_img_list, valid_img_list, train_label_list, valid_label_list = train_test_
 #   transforms.ColorJitter(brightness = (0.5, 1.5), contrast = (0.5, 1.5), saturation = (0.5, 1.5), hue = (-0.1, 0.1))
 # ])
 
+
 train_transform = transforms.Compose([
     transforms.Resize((32, 32)),
     transforms.ToTensor(),
@@ -151,7 +154,7 @@ class vgg16(nn.Module):
         )
 
         self.layer9 = nn.Sequential(
-            nn.Conv2d(512, 512, kernel_size = 3, stride = 1, paddding = 1),
+            nn.Conv2d(512, 512, kernel_size = 3, stride = 1, padding = 1),
             nn.BatchNorm2d(512),
             nn.ReLU()
         )
@@ -180,6 +183,8 @@ class vgg16(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size = 2, stride = 2)
         )
+
+        # self.dim = 
 
         self.fc1 = nn.Sequential(
             nn.Dropout(0.5),
@@ -211,7 +216,9 @@ class vgg16(nn.Module):
         out = self.layer11(out)
         out = self.layer12(out)
         out = self.layer13(out)
-        out = out.flatten(1)
+        print(out.shape)
+        out = out.reshape(out.size(0), -1)
+
         out = self.fc1(out)
         out = self.fc2(out)
         out = self.fc3(out)
